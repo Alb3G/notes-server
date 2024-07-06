@@ -13,6 +13,12 @@ plugins {
 group = "dev.alb3g"
 version = "0.0.1"
 
+sqldelight {
+    database("AppDatabase") {
+        packageName = "dev.alb3g.database"
+    }
+}
+
 application {
     mainClass.set("dev.alb3g.ApplicationKt")
 
@@ -38,4 +44,5 @@ dependencies {
 
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    testImplementation("io.ktor:ktor-server-test-host-jvm:2.3.12")
 }

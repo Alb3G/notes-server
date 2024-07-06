@@ -7,10 +7,23 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.slf4j.LoggerFactory
 
 fun Application.configureRouting() {
     routing {
         route("/notes") {
+            post {
+                val logger = LoggerFactory.getLogger("RequestLogger")
+                try {
+                    val note = call.receive<Note>()
+                    logger.info("Received note: $note")
+                    val savedNote = NotesRepository.save(note)
+                    call.respond(HttpStatusCode.Created, savedNote)
+                }catch (e: Exception) {
+                    logger.error("Failed to receive note: ${e.localizedMessage}", e)
+                    call.respond(HttpStatusCode.BadRequest, "Bad JSON Data Body: ${e.message}")
+                }
+            }
             get {
                 call.respond(NotesRepository.getAll())
             }
@@ -29,15 +42,6 @@ fun Application.configureRouting() {
                 call.respond(note)
             }
             // CREATE
-            post {
-                try {
-                    val note = call.receive<Note>()
-                    val savedNote = NotesRepository.save(note)
-                    call.respond(HttpStatusCode.Created, savedNote)
-                }catch (e: Exception) {
-                    call.respond(HttpStatusCode.BadRequest, "Bad JSON Data Body: ${e.message}")
-                }
-            }
             // UPDATE
             put {
                 try {
